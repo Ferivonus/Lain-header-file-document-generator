@@ -1,0 +1,6 @@
+{
+  "name": "lain-header-file-document-generator",
+  "version": "0.0.1",
+  "builtin-baseline": "e9c53cd6c198a5c16c2e249ae67f5a73aab84b17",
+  "dependencies": ["boost-beast", "boost-asio", "boost-system"]
+}

@@ -28,5 +28,46 @@ code { font-family: monospace; font-size: 1.1em; background: #f1f1f1; padding: 2
 </head>
 <body>
 <h1>Lain-header-file-document-generator</h1><hr>
-<p>Tarama bolgesinde en ust satirinda '// lain-was-here' imzasi barindiran gecerli bir .h dosyasi bulunamadi.</p></body>
+<div class="file-section"><h2>Dosya: .\test\file_sistem.h</h2></div>
+<div class="card">
+  <h3><span class="badge bg-func">FUNCTION</span><code>#define MAX(a,b) ((a) > (b) ? (a) : (b))</code></h3>
+  <p><strong>Ozet:</strong>  Iki degerden buyuk olani donen makro tanimi.</p>
+  <p><strong>Detaylar:</strong> Bu makro girilen <i>a</i> ve <i>b</i> parametrelerini karsilastirarak buyuk olani secer.</p>
+</div>
+<div class="card">
+  <h3><span class="badge bg-type">TYPEDEF</span><code>typedef unsigned int UINT32</code></h3>
+  <p><strong>Ozet:</strong>  32-bitlik isaretsiz tamsayi veri tipi tanimi.</p>
+</div>
+<div class="card">
+  <h3><span class="badge bg-var">VARIABLE</span><code>int cihaz_durumu</code></h3>
+  <p><strong>Ozet:</strong>  Sistemin anlik calisma modunu ve hata durumunu tutan degisken.</p>
+  <div class="warning-box"><strong>Uyari:</strong>  Thread-safe degildir! Es zamanli bellek erisimlerinde veri tutarsizligina neden olabilir.</div>
+  <div class="see-box"><strong>Ayrica Bakiniz:</strong> <code> log_yaz()</code></div>
+</div>
+<div class="card">
+  <h3><span class="badge bg-func">FUNCTION</span><code>int topla(int sayi1, int sayi2)</code></h3>
+  <p><strong>Detaylar:</strong> Iki sayiyi toplar ve sonucu geri dondurur.</p>
+  <h4>Parametreler:</h4>
+  <table class="param-table">
+    <tr><td style="font-weight:bold; width:15%;">sayi1</td><td>Isleme girecek ilk tamsayi degeri.</td></tr>
+    <tr><td style="font-weight:bold; width:15%;">sayi2</td><td>Isleme girecek ikinci tamsayi degeri.</td></tr>
+  </table>
+  <div class="see-box"><strong>Ayrica Bakiniz:</strong> <code> MAX(a,b)</code></div>
+</div>
+<div class="card">
+  <h3><span class="badge bg-func">FUNCTION</span><code>void log_yaz(const char *mesaj, int seviye)</code></h3>
+  <p><strong>Ozet:</strong>  Konsola veya harici dosyaya gecerli zaman damgasiyla log kaydi duser.</p>
+  <h4>Parametreler:</h4>
+  <table class="param-table">
+    <tr><td style="font-weight:bold; width:15%;">mesaj</td><td>Log dosyasına yazilacak olan ana metin icerigi.</td></tr>
+    <tr><td style="font-weight:bold; width:15%;">seviye</td><td>Log öncelik derecesi (0: Bilgi, 1: Uyari, 2: Kritik Hata).</td></tr>
+  </table>
+  <div class="warning-box"><strong>Uyari:</strong>  Gecersiz bir seviye girilirse sistem hata vermez, varsayilan olarak Bilgi kabul eder.</div>
+</div>
+<div class="card">
+  <h3><span class="badge bg-func">FUNCTION</span><code>void sistemi_resetle()</code></h3>
+  <p><strong>Detaylar:</strong> Bagli olan tum donanim birimlerini ve bellek tamponlarini sifirlar.</p>
+  <div class="warning-box"><strong>Uyari:</strong>  Bu fonksiyon cagirildiginda kaydedilmemis tum anlik veriler kaybolacaktir.</div>
+</div>
+</body>
 </html>

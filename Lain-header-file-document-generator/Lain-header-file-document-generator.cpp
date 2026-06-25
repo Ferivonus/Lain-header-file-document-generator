@@ -160,11 +160,12 @@ std::vector<DocItem> parse_header_file(const std::string& file_path) {
     return items;
 }
 
-std::string generate_live_html_and_save() {
+std::string generate_documents_and_save() {
     std::string html;
+    std::string md;
+
     html += "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n";
     html += "<title>Lain-header-file-document-generator</title>\n";
-
     html += "<style>\n";
     html += "body { font-family: 'Segoe UI', sans-serif; margin: 40px; background: #f8f9fa; color: #333; }\n";
     html += ".file-section { background: #2b3e50; color: white; padding: 15px; margin-top: 40px; border-radius: 6px; }\n";
@@ -178,7 +179,6 @@ std::string generate_live_html_and_save() {
     html += ".warning-box { background: #fff3cd; border-left: 5px solid #ffc107; color: #856404; padding: 12px; margin-top: 10px; border-radius: 4px; }\n";
     html += ".see-box { font-size: 0.9em; color: #555; margin-top: 10px; background: #e2e3e5; padding: 8px; border-radius: 4px; }\n";
     html += "</style>\n";
-
     html += "<script>\n";
     html += "  let currentVersion = null;\n";
     html += "  setInterval(() => {\n";
@@ -190,9 +190,13 @@ std::string generate_live_html_and_save() {
     html += "</script>\n</head>\n<body>\n";
     html += "<h1>Lain-header-file-document-generator</h1><hr>\n";
 
-    bool valid_files_found = false;
+    md += "# Lain-header-file-document-generator\n\n";
+    md += "---\n\n";
 
-    for (const auto& entry : std::filesystem::recursive_directory_iterator(".")) {
+    bool valid_files_found = false;
+    auto opts = std::filesystem::directory_options::skip_permission_denied;
+
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(".", opts)) {
         if (entry.is_regular_file() && entry.path().extension() == ".h") {
             std::string file_path = entry.path().string();
 
@@ -205,6 +209,7 @@ std::string generate_live_html_and_save() {
 
             valid_files_found = true;
             html += "<div class=\"file-section\"><h2>Dosya: " + file_path + "</h2></div>\n";
+            md += "## Dosya: `" + file_path + "`\n\n";
 
             for (const auto& item : doc_items) {
                 std::string badge_cls = "bg-func";
@@ -215,50 +220,72 @@ std::string generate_live_html_and_save() {
 
                 html += "<div class=\"card\">\n";
                 html += "  <h3><span class=\"badge " + badge_cls + "\">" + item.type + "</span><code>" + item.signature + "</code></h3>\n";
+                md += "### `[" + item.type + "]` `" + item.signature + "`\n\n";
 
                 if (!item.brief.empty()) {
                     html += "  <p><strong>Ozet:</strong> " + item.brief + "</p>\n";
+                    md += "**Ozet:** " + item.brief + "\n\n";
                 }
                 if (!item.details.empty()) {
                     html += "  <p><strong>Detaylar:</strong> " + item.details + "</p>\n";
+                    md += "**Detaylar:** " + item.details + "\n\n";
                 }
 
                 if (!item.params.empty()) {
                     html += "  <h4>Parametreler:</h4>\n";
                     html += "  <table class=\"param-table\">\n";
+
+                    md += "#### Parametreler:\n";
+                    md += "| Parametre | Aciklama |\n";
+                    md += "| :--- | :--- |\n";
+
                     for (const auto& p : item.params) {
                         html += "    <tr><td style=\"font-weight:bold; width:15%;\">" + p.first + "</td><td>" + p.second + "</td></tr>\n";
+                        md += "| **" + p.first + "** | " + p.second + " |\n";
                     }
                     html += "  </table>\n";
+                    md += "\n";
                 }
 
                 for (const auto& w : item.warnings) {
                     html += "  <div class=\"warning-box\"><strong>Uyari:</strong> " + w + "</div>\n";
+                    md += "> **Uyari:** " + w + "\n\n";
                 }
 
                 if (!item.sees.empty()) {
                     html += "  <div class=\"see-box\"><strong>Ayrica Bakiniz:</strong> ";
+                    md += "**Ayrica Bakiniz:** ";
                     for (size_t i = 0; i < item.sees.size(); ++i) {
                         html += "<code>" + item.sees[i] + "</code>" + (i < item.sees.size() - 1 ? ", " : "");
+                        md += "`" + item.sees[i] + "`" + (i < item.sees.size() - 1 ? ", " : "");
                     }
                     html += "</div>\n";
+                    md += "\n\n";
                 }
 
                 html += "</div>\n";
+                md += "---\n\n";
             }
         }
     }
 
     if (!valid_files_found) {
         html += "<p>Tarama bolgesinde en ust satirinda '// lain-was-here' imzasi barindiran gecerli bir .h dosyasi bulunamadi.</p>";
+        md += "*Tarama bolgesinde en ust satirinda '// lain-was-here' imzasi barindiran gecerli bir .h dosyasi bulunamadi.*\n";
     }
 
     html += "</body>\n</html>\n";
 
-    std::ofstream out_file("index.html");
-    if (out_file.is_open()) {
-        out_file << html;
-        out_file.close();
+    std::ofstream out_html("index.html");
+    if (out_html.is_open()) {
+        out_html << html;
+        out_html.close();
+    }
+
+    std::ofstream out_md("index.md");
+    if (out_md.is_open()) {
+        out_md << md;
+        out_md.close();
     }
 
     return html;
@@ -267,7 +294,8 @@ std::string generate_live_html_and_save() {
 std::string get_project_version() {
     std::string state = "";
     try {
-        for (const auto& entry : std::filesystem::recursive_directory_iterator(".")) {
+        auto opts = std::filesystem::directory_options::skip_permission_denied;
+        for (const auto& entry : std::filesystem::recursive_directory_iterator(".", opts)) {
             if (entry.is_regular_file() && entry.path().extension() == ".h") {
                 std::string path_str = entry.path().string();
                 if (check_lain_signature(path_str)) {
@@ -300,7 +328,7 @@ void handle_session(tcp::socket socket) {
     else {
         res.result(http::status::ok);
         res.set(http::field::content_type, "text/html; charset=utf-8");
-        res.body() = generate_live_html_and_save();
+        res.body() = generate_documents_and_save();
     }
 
     res.prepare_payload();
@@ -320,7 +348,7 @@ int main() {
         std::cout << " Sunucu Baslatildi: http://127.0.0.1:" << port << "\n";
         std::cout << " Calisilan Program: Lain-header-file-document-generator\n";
         std::cout << " Not: Sadece en ustunde '// lain-was-here' olan dosyalar taranir.\n";
-        std::cout << " Yerel dosya 'index.html' eszamanli guncellenmektedir.\n";
+        std::cout << " Yerel 'index.html' ve 'index.md' dosyalari uretilmektedir.\n";
         std::cout << "========================================================\n";
 
         while (true) {
